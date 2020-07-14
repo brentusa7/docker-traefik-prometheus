@@ -7,7 +7,7 @@ global:
   # Attach these labels to any time series or alerts when communicating with
   # external systems (federation, remote storage, Alertmanager).
   external_labels:
-      monitor: 'my-project'
+      monitor: 'monitoring'
 
 # Load and evaluate rules in this file every 'evaluation_interval' seconds.
 rule_files:
@@ -35,15 +35,51 @@ scrape_configs:
 
     static_configs:
          - targets: ['localhost:9090']
+        #  - targets: ['https://gitlab.talksuresa.co.za:8083/metrics']
+        #    labels:
+        #     instance: 'traefik'
 
 
-  - job_name: 'traefik'
+  # - job_name: 'traefik'
 
     # Override the global default and scrape targets from this job every 5 seconds.
-    scrape_interval: 5s
+    # scrape_interval: 5s
 
-    dns_sd_configs:
-    - names:
-      - 'tasks.traefik'
-      type: 'A'
-      port: 8080
+    # dns_sd_configs:
+    # - names:
+    #   - 'tasks.traefik'
+    #   type: 'A'
+    #   port: 8080
+
+  - job_name: 'traefik'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+    scheme: https
+    static_configs:
+    - targets:
+      - gitlab.talksuresa.co.za.:8083
+
+  - job_name: 'cadvisor'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /
+    scheme: https
+    static_configs:
+    - targets:
+      - ts-lnx-dock02:8081
+
+  # - job_name: 'cadvisor'
+  #   dns_sd_configs:
+  #   - names:
+  #     - 'tasks.cadvisor'
+  #     type: 'A'
+  #     port: 8080
+    
+    # # The targets specified by the static config.
+    # targets:
+    #   [ - '<host>' ]
+
+    # # Labels assigned to all metrics scraped from the targets.
+    # labels:
+    # [ <labelname>: <labelvalue> ... ]
